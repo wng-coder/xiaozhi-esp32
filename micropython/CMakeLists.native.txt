@@ -1,0 +1,21 @@
+cmake_minimum_required(VERSION 3.16)
+project(spotpear_native_module LANGUAGES C CXX)
+
+set(CMAKE_CXX_STANDARD 17)
+
+include_directories(
+    ../main
+    ../main/boards/common
+    ../managed_components/78__esp-ml307/include
+    .
+)
+
+add_library(spotpear SHARED
+    modspotpear.c
+    sp_esp32_s3_1_28_box_wrapper.cpp
+)
+
+target_link_libraries(spotpear
+    ${CMAKE_SOURCE_DIR}/../libmain.a
+    stdc++
+)
