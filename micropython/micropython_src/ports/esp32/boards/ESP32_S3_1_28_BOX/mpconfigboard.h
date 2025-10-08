@@ -7,6 +7,9 @@
 #define MICROPY_PY_BLUETOOTH                (0)
 #define MICROPY_HW_ANTENNA_DIVERSITY        (0)
 
+// Disable TinyUSB to avoid linker errors (CDC not available in main project)
+#define MICROPY_PY_TINYUSB                  (0)
+
 // Enable I2C with the new ESP-IDF v5.4 compatible driver
 #define MICROPY_PY_MACHINE_I2C              (1)
 #define MICROPY_HW_ESP_NEW_I2C_DRIVER       (1)
@@ -36,11 +39,10 @@
 // Enable filesystem on flash
 #define MICROPY_HW_ENABLE_FILESYSTEM        (1)
 
-// Disable USB to avoid linker issues with TinyUSB
-#define MICROPY_HW_ENABLE_USBDEV            (0)
-#define MICROPY_HW_USB_CDC                  (0)
-#define MICROPY_HW_USB_CDC_DTR_RTS_BOOTLOADER (0)
-#define MICROPY_PY_TINYUSB                  (0)
+// Enable USB for TinyUSB support
+#define MICROPY_HW_ENABLE_USBDEV            (1)
+#define MICROPY_HW_USB_CDC                  (1)
+#define MICROPY_HW_USB_CDC_DTR_RTS_BOOTLOADER (1)
 
 // ADC configuration
 #define MICROPY_HW_ENABLE_ADC               (1)
