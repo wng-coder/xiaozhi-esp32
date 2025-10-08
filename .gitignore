@@ -3,7 +3,7 @@ components/
 managed_components/
 build/
 .vscode/
-.devcontainer/
+# .devcontainer/
 sdkconfig.old
 sdkconfig
 dependencies.lock
