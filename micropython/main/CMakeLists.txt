@@ -2,6 +2,8 @@ idf_component_register(
     SRCS "main.c"
     INCLUDE_DIRS "." 
                  ".."
+    REQUIRES "board_wrapper" "micropython_mod"
+    PRIV_REQUIRES "esp_event" "nvs_flash" "driver" "freertos" "esp_common"
 )
 
 # Link with the static library

@@ -7,8 +7,10 @@
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
 
-// Board wrapper header (commented out due to FreeRTOS conflicts)
-// #include "sp_esp32_s3_1_28_box_wrapper.h"
+// Board wrapper header - now as ESP-IDF component
+#include "sp_esp32_s3_1_28_box_wrapper.h"
+// Python-like test functions
+#include "python_tests.h"
 
 #define TAG "micropython_mod"
 
@@ -34,12 +36,16 @@ void app_main(void)
 
     ESP_LOGI(TAG, "Initializing board functions...");
     
-    // Initialize board wrapper (commented out for now due to header dependencies)
-    // void* board = spotpear_board_create();
-    // if (board) {
-    //     ESP_LOGI(TAG, "Board instance created successfully");
-    //     // Add board-specific initialization here
-    // }
+    // Initialize board wrapper
+    void* board = spotpear_board_create();
+    if (board) {
+        ESP_LOGI(TAG, "Board instance created successfully");
+        
+        // Run comprehensive Python-style tests
+        run_python_like_tests(board);
+    } else {
+        ESP_LOGE(TAG, "Failed to create board instance");
+    }
     
     // Initialize board from libmain.a
     // TODO: Uncomment when board functions are available
