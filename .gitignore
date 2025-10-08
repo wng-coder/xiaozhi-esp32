@@ -17,5 +17,5 @@ main/mmap_generate_emoji.h
 mmap_generate_*.h
 .clangd
 
-micropython_src/
+# micropython_src/  # Should not be ignored - contains MicroPython integration
 build_native/
