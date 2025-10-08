@@ -39,10 +39,9 @@
 // Enable filesystem on flash
 #define MICROPY_HW_ENABLE_FILESYSTEM        (1)
 
-// Enable USB for TinyUSB support
-#define MICROPY_HW_ENABLE_USBDEV            (1)
-#define MICROPY_HW_USB_CDC                  (1)
-#define MICROPY_HW_USB_CDC_DTR_RTS_BOOTLOADER (1)
+// Disable USB to avoid TinyUSB linker errors
+#define MICROPY_HW_ENABLE_USBDEV            (0)
+#define MICROPY_HW_USB_CDC                  (0)
 
 // ADC configuration
 #define MICROPY_HW_ENABLE_ADC               (1)
