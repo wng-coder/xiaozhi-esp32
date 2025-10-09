@@ -131,13 +131,37 @@ static mp_obj_t spotpear_led_off(mp_obj_t self_in) {
 }
 static MP_DEFINE_CONST_FUN_OBJ_1(spotpear_led_off_obj, spotpear_led_off);
 
-static mp_obj_t spotpear_led_blink(mp_obj_t self_in, mp_obj_t count_obj) {
-    mp_obj_spotpear_t *self = MP_OBJ_TO_PTR(self_in);
-    int count = mp_obj_get_int(count_obj);
+static mp_obj_t spotpear_led_blink(size_t n_args, const mp_obj_t *args) {
+    mp_obj_spotpear_t *self = MP_OBJ_TO_PTR(args[0]);
+    int count = 1;
+    if (n_args > 1) {
+        count = mp_obj_get_int(args[1]);
+    }
     spotpear_board_led_blink(self->board, count);
     return mp_const_none;
 }
-static MP_DEFINE_CONST_FUN_OBJ_2(spotpear_led_blink_obj, spotpear_led_blink);
+static MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(spotpear_led_blink_obj, 1, 2, spotpear_led_blink);
+
+// RGB LED function
+static mp_obj_t spotpear_set_led(size_t n_args, const mp_obj_t *args) {
+    if (n_args != 4) {
+        mp_raise_ValueError(MP_ERROR_TEXT("set_led requires 4 arguments (self, r, g, b)"));
+    }
+    
+    mp_obj_spotpear_t *self = MP_OBJ_TO_PTR(args[0]);
+    int r = mp_obj_get_int(args[1]);
+    int g = mp_obj_get_int(args[2]); 
+    int b = mp_obj_get_int(args[3]);
+    
+    // Validate RGB values are in valid range (0-255)
+    if (r < 0 || r > 255 || g < 0 || g > 255 || b < 0 || b > 255) {
+        mp_raise_ValueError(MP_ERROR_TEXT("RGB values must be in range 0-255"));
+    }
+    
+    spotpear_board_set_led(self->board, r, g, b);
+    return mp_const_none;
+}
+static MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(spotpear_set_led_obj, 4, 4, spotpear_set_led);
 
 // Backlight functions
 static mp_obj_t spotpear_set_brightness(mp_obj_t self_in, mp_obj_t brightness_obj) {
@@ -246,6 +270,45 @@ static mp_obj_t spotpear_app_main(mp_obj_t self_in) {
 }
 static MP_DEFINE_CONST_FUN_OBJ_1(spotpear_app_main_obj, spotpear_app_main);
 
+// I2C functions
+static mp_obj_t spotpear_i2c_scan(mp_obj_t self_in) {
+    mp_obj_spotpear_t *self = MP_OBJ_TO_PTR(self_in);
+    int devices[16]; // Maximum 16 devices
+    int device_count = spotpear_board_i2c_scan(self->board, devices, 16);
+    
+    // Create a list of found device addresses
+    mp_obj_t device_list[device_count];
+    for (int i = 0; i < device_count; i++) {
+        device_list[i] = mp_obj_new_int(devices[i]);
+    }
+    
+    return mp_obj_new_list(device_count, device_list);
+}
+static MP_DEFINE_CONST_FUN_OBJ_1(spotpear_i2c_scan_obj, spotpear_i2c_scan);
+
+// Xiaozhi Application launcher functions
+extern void launch_xiaozhi_application(void);
+extern int get_xiaozhi_status(void);
+extern void stop_xiaozhi_application(void);
+
+static mp_obj_t spotpear_launch_xiaozhi_application(mp_obj_t self_in) {
+    launch_xiaozhi_application();
+    return mp_const_none;
+}
+static MP_DEFINE_CONST_FUN_OBJ_1(spotpear_launch_xiaozhi_application_obj, spotpear_launch_xiaozhi_application);
+
+static mp_obj_t spotpear_get_xiaozhi_status(mp_obj_t self_in) {
+    int status = get_xiaozhi_status();
+    return mp_obj_new_int(status);
+}
+static MP_DEFINE_CONST_FUN_OBJ_1(spotpear_get_xiaozhi_status_obj, spotpear_get_xiaozhi_status);
+
+static mp_obj_t spotpear_stop_xiaozhi_application(mp_obj_t self_in) {
+    stop_xiaozhi_application();
+    return mp_const_none;
+}
+static MP_DEFINE_CONST_FUN_OBJ_1(spotpear_stop_xiaozhi_application_obj, spotpear_stop_xiaozhi_application);
+
 static void spotpear_deinit(mp_obj_t self_in) {
     mp_obj_spotpear_t *self = MP_OBJ_TO_PTR(self_in);
     spotpear_board_destroy(self->board);
@@ -279,6 +342,7 @@ static const mp_rom_map_elem_t spotpear_locals_dict_table[] = {
     { MP_ROM_QSTR(MP_QSTR_led_on), MP_ROM_PTR(&spotpear_led_on_obj) },
     { MP_ROM_QSTR(MP_QSTR_led_off), MP_ROM_PTR(&spotpear_led_off_obj) },
     { MP_ROM_QSTR(MP_QSTR_led_blink), MP_ROM_PTR(&spotpear_led_blink_obj) },
+    { MP_ROM_QSTR(MP_QSTR_set_led), MP_ROM_PTR(&spotpear_set_led_obj) },
     
     // Backlight control
     { MP_ROM_QSTR(MP_QSTR_set_brightness), MP_ROM_PTR(&spotpear_set_brightness_obj) },
@@ -293,6 +357,9 @@ static const mp_rom_map_elem_t spotpear_locals_dict_table[] = {
     // Power management
     { MP_ROM_QSTR(MP_QSTR_set_power_save_mode), MP_ROM_PTR(&spotpear_set_power_save_mode_obj) },
     
+    // I2C functions
+    { MP_ROM_QSTR(MP_QSTR_i2c_scan), MP_ROM_PTR(&spotpear_i2c_scan_obj) },
+    
     // Application initialization (from main.cc)
     { MP_ROM_QSTR(MP_QSTR_init_nvs), MP_ROM_PTR(&spotpear_init_nvs_obj) },
     { MP_ROM_QSTR(MP_QSTR_init_event_loop), MP_ROM_PTR(&spotpear_init_event_loop_obj) },
@@ -301,6 +368,11 @@ static const mp_rom_map_elem_t spotpear_locals_dict_table[] = {
     
     // Direct app_main wrapper (complete main.cc functionality)
     { MP_ROM_QSTR(MP_QSTR_app_main), MP_ROM_PTR(&spotpear_app_main_obj) },
+    
+    // Real Xiaozhi Application launcher integration
+    { MP_ROM_QSTR(MP_QSTR_launch_xiaozhi_application), MP_ROM_PTR(&spotpear_launch_xiaozhi_application_obj) },
+    { MP_ROM_QSTR(MP_QSTR_get_xiaozhi_status), MP_ROM_PTR(&spotpear_get_xiaozhi_status_obj) },
+    { MP_ROM_QSTR(MP_QSTR_stop_xiaozhi_application), MP_ROM_PTR(&spotpear_stop_xiaozhi_application_obj) },
 };
 static MP_DEFINE_CONST_DICT(spotpear_locals_dict, spotpear_locals_dict_table);
 

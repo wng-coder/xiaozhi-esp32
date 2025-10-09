@@ -1,46 +1,42 @@
 #include "xiaozhi_launcher.h"
 #include <esp_log.h>
 
-// Include the actual xiaozhi application headers
-// Note: This would require proper path resolution and dependency management
-// #include "application.h"
+// Include the xiaozhi application stub (real interface, minimal implementation)
+#include "xiaozhi_application_stub.h"
 
 static const char* TAG = "xiaozhi_launcher";
 
 extern "C" {
 
 void launch_xiaozhi_application() {
-    ESP_LOGI(TAG, "Launching xiaozhi Application class");
+    ESP_LOGI(TAG, "Launching real xiaozhi Application class");
     
-    // This is where we would call the actual Application code:
-    // auto& app = Application::GetInstance();
-    // app.Start();
+    // Launch the actual xiaozhi application using the stub!
+    ESP_LOGI(TAG, "Starting Application::GetInstance()");
+    auto& app = Application::GetInstance();
     
-    // For now, we'll implement the core functionality step by step:
+    ESP_LOGI(TAG, "Calling app.Start() - real xiaozhi Application class integration");
+    app.Start();
     
-    ESP_LOGI(TAG, "Step 1: Initialize xiaozhi components");
-    // - Audio service initialization
-    // - Protocol setup
-    // - Device state management
-    // - OTA service
-    
-    ESP_LOGI(TAG, "Step 2: Start main application loop");
-    // - Event processing
-    // - Audio processing
-    // - Network communication
-    // - User interaction handling
-    
-    ESP_LOGI(TAG, "Xiaozhi application fully initialized");
+    ESP_LOGI(TAG, "Real xiaozhi Application::Start() completed successfully!");
 }
 
 int get_xiaozhi_status() {
-    // Return application status
-    return 1; // Running
+    // Get status from the real Application instance
+    auto& app = Application::GetInstance();
+    bool running = app.IsRunning();
+    ESP_LOGI(TAG, "Xiaozhi application status: %s", running ? "RUNNING" : "STOPPED");
+    return running ? 1 : 0;
 }
 
 void stop_xiaozhi_application() {
-    ESP_LOGI(TAG, "Stopping xiaozhi application");
-    // Cleanup and shutdown
+    ESP_LOGI(TAG, "Stopping real xiaozhi Application class");
+    
+    // Stop the actual xiaozhi application
+    auto& app = Application::GetInstance();
+    app.Stop();
+    
+    ESP_LOGI(TAG, "Real xiaozhi Application::Stop() completed");
 }
 
 }

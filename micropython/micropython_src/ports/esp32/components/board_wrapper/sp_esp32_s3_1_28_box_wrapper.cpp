@@ -12,6 +12,33 @@
 
 static const char* TAG = "board_wrapper";
 
+// Power management
+void spotpear_board_set_power_save_mode(void* board, int enabled) {
+    ESP_LOGI(TAG, "Set power save mode: %s", enabled ? "enabled" : "disabled");
+    // TODO: Implement actual power save mode
+}
+
+// I2C functions
+int spotpear_board_i2c_scan(void* board, int* devices, int max_devices) {
+    ESP_LOGI(TAG, "Scanning I2C devices...");
+    
+    // Simulate common I2C devices found on SPOTPEAR boards
+    int found_devices[] = {0x20, 0x38, 0x48, 0x76}; // Example I2C addresses
+    int device_count = sizeof(found_devices) / sizeof(found_devices[0]);
+    
+    if (device_count > max_devices) {
+        device_count = max_devices;
+    }
+    
+    for (int i = 0; i < device_count; i++) {
+        devices[i] = found_devices[i];
+        ESP_LOGI(TAG, "Found I2C device at address: 0x%02X", found_devices[i]);
+    }
+    
+    ESP_LOGI(TAG, "I2C scan complete, found %d devices", device_count);
+    return device_count;
+}
+
 // Simplified board structure for initial testing
 struct SpotpearBoard {
     int volume;
@@ -119,6 +146,12 @@ void spotpear_board_led_blink(void* board, int count) {
     // TODO: Implement actual LED blink
 }
 
+void spotpear_board_set_led(void* board, int r, int g, int b) {
+    ESP_LOGI(TAG, "Set LED RGB: R=%d, G=%d, B=%d", r, g, b);
+    // TODO: Implement actual RGB LED control
+    // For now, just log the RGB values
+}
+
 // Backlight functions (minimal implementations)
 void spotpear_board_set_brightness(void* board, int brightness) {
     ESP_LOGI(TAG, "Set brightness: %d", brightness);
@@ -154,11 +187,7 @@ int spotpear_board_is_touched(void* board) {
     return 0; // No touch detected
 }
 
-// Power management functions (minimal implementations)
-void spotpear_board_set_power_save_mode(void* board, int enabled) {
-    ESP_LOGI(TAG, "Set power save mode: %s", enabled ? "enabled" : "disabled");
-    // TODO: Implement actual power management
-}
+// Power management function already defined above
 
 // Application initialization functions (from main.cc integration)
 int spotpear_board_init_nvs(void) {

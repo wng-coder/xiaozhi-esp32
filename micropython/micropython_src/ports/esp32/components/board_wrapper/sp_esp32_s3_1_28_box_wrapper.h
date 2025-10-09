@@ -29,11 +29,10 @@ void spotpear_board_set_wifi_status(void* board, int connected);
 void spotpear_board_set_battery_level(void* board, int level);
 
 // LED functions
-void spotpear_board_led_on(void* board);
-void spotpear_board_led_off(void* board);
-void spotpear_board_led_blink(void* board, int count);
-
-// Backlight functions
+    void spotpear_board_led_on(void* board);
+    void spotpear_board_led_off(void* board);
+    void spotpear_board_led_blink(void* board, int count);
+    void spotpear_board_set_led(void* board, int r, int g, int b);// Backlight functions
 void spotpear_board_set_brightness(void* board, int brightness);
 int spotpear_board_get_brightness(void* board);
 void spotpear_board_restore_brightness(void* board);
@@ -45,6 +44,9 @@ int spotpear_board_is_touched(void* board);
 
 // Power management functions
 void spotpear_board_set_power_save_mode(void* board, int enabled);
+
+// I2C functions
+int spotpear_board_i2c_scan(void* board, int* devices, int max_devices);
 
 // Application initialization functions (from main.cc)
 // Application initialization functions from main.cc
