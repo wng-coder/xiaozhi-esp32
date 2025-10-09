@@ -3,7 +3,7 @@ add_library(usermod_modspotpear INTERFACE)
 
 # Add our source files
 target_sources(usermod_modspotpear INTERFACE
-    ${CMAKE_CURRENT_LIST_DIR}/modspotpear.c
+    ${CMAKE_CURRENT_LIST_DIR}/modspotpear_user.c
 )
 
 # Add include directories if needed
