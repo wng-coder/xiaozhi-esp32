@@ -2,11 +2,10 @@ CONFIG_ESPTOOLPY_FLASHMODE_DIO=y
 CONFIG_ESPTOOLPY_FLASHFREQ_80M=y
 CONFIG_ESPTOOLPY_FLASHSIZE_4MB=y
 
-# Disable PSRAM to avoid ID read errors
-CONFIG_ESP32S3_SPIRAM_SUPPORT=n
-CONFIG_SPIRAM=n
-# CONFIG_SPIRAM_BOOT_INIT is not set
-# CONFIG_SPIRAM_USE_MEMMAP is not set
+# ESP32-S3R8 has 8MB integrated PSRAM - completely disable external PSRAM
+# The integrated PSRAM cannot be accessed like external PSRAM
+# Disable SPIRAM entirely for ESP32-S3R8 compatibility
+# CONFIG_SPIRAM is not set
 
 # USB Configuration (disable native USB, use UART)
 CONFIG_TINYUSB_CDC_ENABLED=n

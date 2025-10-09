@@ -21,8 +21,13 @@ def test_system_info():
     print(f"Platform: {sys.platform}")
     
     if esp32_available:
-        print(f"Flash size: {esp32.flash_size()} bytes")
-        print(f"Flash user start: {esp32.flash_user_start()}")
+        try:
+            if hasattr(esp32, 'flash_size'):
+                print(f"Flash size: {esp32.flash_size()} bytes")
+            if hasattr(esp32, 'flash_user_start'):
+                print(f"Flash user start: {esp32.flash_user_start()}")
+        except Exception as e:
+            print(f"ESP32 info not available: {e}")
     
     # Memory information
     print(f"Free memory: {gc.mem_free()} bytes")
@@ -35,22 +40,58 @@ def test_system_info():
 def test_psram():
     """Test PSRAM functionality"""
     print("=== PSRAM Test ===")
+    print(f"Initial free memory: {gc.mem_free()} bytes")
+    
+    # Check if esp32 module has PSRAM info
+    if esp32_available:
+        try:
+            # Try to get PSRAM info if available
+            if hasattr(esp32, 'spiram_size'):
+                print(f"SPIRAM size: {esp32.spiram_size()} bytes")
+            if hasattr(esp32, 'spiram_available'):
+                print(f"SPIRAM available: {esp32.spiram_available()}")
+            else:
+                print("No SPIRAM functions available in esp32 module")
+        except Exception as e:
+            print(f"No SPIRAM info available from esp32 module: {e}")
+    
+    # Test progressive allocations to find actual limit
+    sizes = [100*1024, 200*1024, 400*1024, 512*1024, 1024*1024]  # 100KB to 1MB
+    
     try:
-        # Try to allocate large memory to use PSRAM
-        large_data = bytearray(1024 * 1024)  # 1MB allocation
-        large_data[0] = 0xAA
-        large_data[-1] = 0x55
+        for size in sizes:
+            try:
+                print(f"Testing {size//1024}KB allocation...")
+                large_data = bytearray(size)
+                large_data[0] = 0xAA
+                large_data[-1] = 0x55
+                
+                if large_data[0] == 0xAA and large_data[-1] == 0x55:
+                    print(f"✓ {size//1024}KB allocation successful")
+                    print(f"  Free memory after: {gc.mem_free()} bytes")
+                else:
+                    print(f"✗ {size//1024}KB data integrity failed")
+                
+                del large_data
+                gc.collect()
+                print(f"  Free memory after cleanup: {gc.mem_free()} bytes")
+                
+            except MemoryError as e:
+                print(f"✗ {size//1024}KB allocation failed: {e}")
+                print(f"  Maximum allocatable size appears to be < {size//1024}KB")
+                break
+            except Exception as e:
+                print(f"✗ {size//1024}KB test error: {e}")
+                break
         
-        if large_data[0] == 0xAA and large_data[-1] == 0x55:
-            print("✓ PSRAM allocation and access test passed")
-            print(f"  Allocated 1MB, start=0x{large_data[0]:02X}, end=0x{large_data[-1]:02X}")
+        # PSRAM diagnosis
+        max_free = gc.mem_free()
+        if max_free < 1024*1024:  # Less than 1MB
+            print(f"\n⚠️  PSRAM appears NOT active - only {max_free//1024}KB available")
+            print("   This suggests PSRAM initialization failed")
         else:
-            print("✗ PSRAM data integrity test failed")
-        
-        del large_data
-        gc.collect()
-        print("✓ PSRAM memory released")
-        
+            print(f"\n✓ PSRAM appears active - {max_free//1024//1024}MB+ available")
+                
     except Exception as e:
         print(f"✗ PSRAM test failed: {e}")
     print()
@@ -78,17 +119,21 @@ def test_i2c():
     """Test I2C functionality"""
     print("=== I2C Test ===")
     try:
-        # Test I2C0 (pins 8/9)
-        i2c0 = machine.I2C(0, scl=machine.Pin(9), sda=machine.Pin(8))
-        devices0 = i2c0.scan()
-        print(f"I2C0 (SCL=9, SDA=8) devices: {[hex(addr) for addr in devices0]}")
+        # Audio Codec I2C (from config.h: SDA=15, SCL=14)
+        i2c_codec = machine.I2C(0, scl=machine.Pin(14), sda=machine.Pin(15))
+        devices_codec = i2c_codec.scan()
+        print(f"Audio Codec I2C (SCL=14, SDA=15) devices: {[hex(addr) for addr in devices_codec]}")
+        if 0x18 in devices_codec:  # ES8311_CODEC_DEFAULT_ADDR is typically 0x18
+            print("  ✓ ES8311 Audio Codec detected!")
         
-        # Test I2C1 (pins 17/18) 
-        i2c1 = machine.I2C(1, scl=machine.Pin(18), sda=machine.Pin(17))
-        devices1 = i2c1.scan()
-        print(f"I2C1 (SCL=18, SDA=17) devices: {[hex(addr) for addr in devices1]}")
+        # Touchpad I2C (from config.h: SDA=11, SCL=7)
+        i2c_touch = machine.I2C(1, scl=machine.Pin(7), sda=machine.Pin(11))
+        devices_touch = i2c_touch.scan()
+        print(f"Touchpad I2C (SCL=7, SDA=11) devices: {[hex(addr) for addr in devices_touch]}")
+        if devices_touch:
+            print(f"  ✓ Touch controller detected at address(es): {[hex(addr) for addr in devices_touch]}")
         
-        print("✓ I2C scan completed")
+        print("✓ I2C scan completed with correct hardware pins")
         
     except Exception as e:
         print(f"✗ I2C test failed: {e}")

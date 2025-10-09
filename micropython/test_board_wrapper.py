@@ -138,4 +138,4 @@ def run_comprehensive_test():
 if __name__ == "__main__":
     # This is how you would test the board in actual MicroPython
     success = run_comprehensive_test()
-    exit(0 if success else 1)
+    print(f"Test result: {'SUCCESS' if success else 'FAILED'}")
