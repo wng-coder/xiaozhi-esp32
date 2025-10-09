@@ -1,4 +1,5 @@
 #include "sp_esp32_s3_1_28_box_wrapper.h"
+#include "xiaozhi_launcher.h"
 #include <esp_log.h>
 #include <driver/gpio.h>
 #include <nvs_flash.h>
@@ -230,20 +231,33 @@ int spotpear_board_get_system_info(char* buffer, int buffer_size) {
 static void xiaozhi_app_task(void* arg) {
     ESP_LOGI(TAG, "Starting xiaozhi application task");
     
-    // Here we could potentially spawn the actual xiaozhi application
-    // For now, this serves as a placeholder that demonstrates the concept
-    // In a real implementation, you'd either:
-    // 1. Create a separate xiaozhi executable and exec() it
-    // 2. Refactor xiaozhi to be a library that can be called from here
-    // 3. Use IPC mechanisms to communicate with a separate xiaozhi process
+    // This implements the exact logic from main.cc app_main() function:
+    // 1. Event loop already created by spotpear_board_app_main()
+    // 2. NVS already initialized by spotpear_board_app_main()  
+    // 3. Now launch the actual Application class
     
-    ESP_LOGI(TAG, "Xiaozhi application placeholder running...");
+    ESP_LOGI(TAG, "System initialization complete, launching xiaozhi application");
     
-    // Keep the task running
+    // Launch the actual xiaozhi application
+    // This will eventually call Application::GetInstance().Start()
+    launch_xiaozhi_application();
+    
+    // Monitor application status
     while (1) {
-        vTaskDelay(pdMS_TO_TICKS(5000));
-        ESP_LOGI(TAG, "Xiaozhi app heartbeat");
+        vTaskDelay(pdMS_TO_TICKS(10000)); // Check every 10 seconds
+        
+        int status = get_xiaozhi_status();
+        if (status <= 0) {
+            ESP_LOGW(TAG, "Xiaozhi application stopped, status: %d", status);
+            break;
+        }
+        
+        ESP_LOGI(TAG, "Xiaozhi application running normally");
     }
+    
+    ESP_LOGE(TAG, "Xiaozhi application task ended");
+    stop_xiaozhi_application();
+    vTaskDelete(NULL);
 }
 
 // Direct wrapper for the complete app_main function
