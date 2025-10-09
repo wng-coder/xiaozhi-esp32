@@ -6,198 +6,198 @@ typedef struct _mp_obj_spotpear_t {
     void* board;
 } mp_obj_spotpear_t;
 
-static mp_obj_t spotpear_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_kw, const mp_obj_t *args) {
+STATIC mp_obj_t spotpear_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_kw, const mp_obj_t *args) {
     mp_obj_spotpear_t *self = m_new_obj(mp_obj_spotpear_t);
     self->base.type = type;
     self->board = spotpear_board_create();
     return MP_OBJ_FROM_PTR(self);
 }
 
-static mp_obj_t spotpear_toggle_chat(mp_obj_t self_in) {
+STATIC mp_obj_t spotpear_toggle_chat(mp_obj_t self_in) {
     mp_obj_spotpear_t *self = MP_OBJ_TO_PTR(self_in);
     spotpear_board_toggle_chat(self->board);
     return mp_const_none;
 }
-static MP_DEFINE_CONST_FUN_OBJ_1(spotpear_toggle_chat_obj, spotpear_toggle_chat);
+STATIC MP_DEFINE_CONST_FUN_OBJ_1(spotpear_toggle_chat_obj, spotpear_toggle_chat);
 
-static mp_obj_t spotpear_set_output_volume(mp_obj_t self_in, mp_obj_t volume_obj) {
+STATIC mp_obj_t spotpear_set_output_volume(mp_obj_t self_in, mp_obj_t volume_obj) {
     mp_obj_spotpear_t *self = MP_OBJ_TO_PTR(self_in);
     int volume = mp_obj_get_int(volume_obj);
     spotpear_board_set_output_volume(self->board, volume);
     return mp_const_none;
 }
-static MP_DEFINE_CONST_FUN_OBJ_2(spotpear_set_output_volume_obj, spotpear_set_output_volume);
+STATIC MP_DEFINE_CONST_FUN_OBJ_2(spotpear_set_output_volume_obj, spotpear_set_output_volume);
 
-static mp_obj_t spotpear_enable_input(mp_obj_t self_in, mp_obj_t enable_obj) {
+STATIC mp_obj_t spotpear_enable_input(mp_obj_t self_in, mp_obj_t enable_obj) {
     mp_obj_spotpear_t *self = MP_OBJ_TO_PTR(self_in);
     int enable = mp_obj_is_true(enable_obj) ? 1 : 0;
     spotpear_board_enable_input(self->board, enable);
     return mp_const_none;
 }
-static MP_DEFINE_CONST_FUN_OBJ_2(spotpear_enable_input_obj, spotpear_enable_input);
+STATIC MP_DEFINE_CONST_FUN_OBJ_2(spotpear_enable_input_obj, spotpear_enable_input);
 
-static mp_obj_t spotpear_enable_output(mp_obj_t self_in, mp_obj_t enable_obj) {
+STATIC mp_obj_t spotpear_enable_output(mp_obj_t self_in, mp_obj_t enable_obj) {
     mp_obj_spotpear_t *self = MP_OBJ_TO_PTR(self_in);
     int enable = mp_obj_is_true(enable_obj) ? 1 : 0;
     spotpear_board_enable_output(self->board, enable);
     return mp_const_none;
 }
-static MP_DEFINE_CONST_FUN_OBJ_2(spotpear_enable_output_obj, spotpear_enable_output);
+STATIC MP_DEFINE_CONST_FUN_OBJ_2(spotpear_enable_output_obj, spotpear_enable_output);
 
-static mp_obj_t spotpear_get_output_volume(mp_obj_t self_in) {
+STATIC mp_obj_t spotpear_get_output_volume(mp_obj_t self_in) {
     mp_obj_spotpear_t *self = MP_OBJ_TO_PTR(self_in);
     int volume = spotpear_board_get_output_volume(self->board);
     return mp_obj_new_int(volume);
 }
-static MP_DEFINE_CONST_FUN_OBJ_1(spotpear_get_output_volume_obj, spotpear_get_output_volume);
+STATIC MP_DEFINE_CONST_FUN_OBJ_1(spotpear_get_output_volume_obj, spotpear_get_output_volume);
 
-static mp_obj_t spotpear_is_input_enabled(mp_obj_t self_in) {
+STATIC mp_obj_t spotpear_is_input_enabled(mp_obj_t self_in) {
     mp_obj_spotpear_t *self = MP_OBJ_TO_PTR(self_in);
     int enabled = spotpear_board_is_input_enabled(self->board);
     return mp_obj_new_bool(enabled);
 }
-static MP_DEFINE_CONST_FUN_OBJ_1(spotpear_is_input_enabled_obj, spotpear_is_input_enabled);
+STATIC MP_DEFINE_CONST_FUN_OBJ_1(spotpear_is_input_enabled_obj, spotpear_is_input_enabled);
 
-static mp_obj_t spotpear_is_output_enabled(mp_obj_t self_in) {
+STATIC mp_obj_t spotpear_is_output_enabled(mp_obj_t self_in) {
     mp_obj_spotpear_t *self = MP_OBJ_TO_PTR(self_in);
     int enabled = spotpear_board_is_output_enabled(self->board);
     return mp_obj_new_bool(enabled);
 }
-static MP_DEFINE_CONST_FUN_OBJ_1(spotpear_is_output_enabled_obj, spotpear_is_output_enabled);
+STATIC MP_DEFINE_CONST_FUN_OBJ_1(spotpear_is_output_enabled_obj, spotpear_is_output_enabled);
 
 // Display functions
-static mp_obj_t spotpear_set_chat_message(mp_obj_t self_in, mp_obj_t role_obj, mp_obj_t message_obj) {
+STATIC mp_obj_t spotpear_set_chat_message(mp_obj_t self_in, mp_obj_t role_obj, mp_obj_t message_obj) {
     mp_obj_spotpear_t *self = MP_OBJ_TO_PTR(self_in);
     const char *role = mp_obj_str_get_str(role_obj);
     const char *message = mp_obj_str_get_str(message_obj);
     spotpear_board_set_chat_message(self->board, role, message);
     return mp_const_none;
 }
-static MP_DEFINE_CONST_FUN_OBJ_3(spotpear_set_chat_message_obj, spotpear_set_chat_message);
+STATIC MP_DEFINE_CONST_FUN_OBJ_3(spotpear_set_chat_message_obj, spotpear_set_chat_message);
 
-static mp_obj_t spotpear_set_emotion(mp_obj_t self_in, mp_obj_t emotion_obj) {
+STATIC mp_obj_t spotpear_set_emotion(mp_obj_t self_in, mp_obj_t emotion_obj) {
     mp_obj_spotpear_t *self = MP_OBJ_TO_PTR(self_in);
     const char *emotion = mp_obj_str_get_str(emotion_obj);
     spotpear_board_set_emotion(self->board, emotion);
     return mp_const_none;
 }
-static MP_DEFINE_CONST_FUN_OBJ_2(spotpear_set_emotion_obj, spotpear_set_emotion);
+STATIC MP_DEFINE_CONST_FUN_OBJ_2(spotpear_set_emotion_obj, spotpear_set_emotion);
 
-static mp_obj_t spotpear_set_volume_indicator(mp_obj_t self_in, mp_obj_t volume_obj) {
+STATIC mp_obj_t spotpear_set_volume_indicator(mp_obj_t self_in, mp_obj_t volume_obj) {
     mp_obj_spotpear_t *self = MP_OBJ_TO_PTR(self_in);
     int volume = mp_obj_get_int(volume_obj);
     spotpear_board_set_volume_indicator(self->board, volume);
     return mp_const_none;
 }
-static MP_DEFINE_CONST_FUN_OBJ_2(spotpear_set_volume_indicator_obj, spotpear_set_volume_indicator);
+STATIC MP_DEFINE_CONST_FUN_OBJ_2(spotpear_set_volume_indicator_obj, spotpear_set_volume_indicator);
 
-static mp_obj_t spotpear_set_mute_indicator(mp_obj_t self_in, mp_obj_t muted_obj) {
+STATIC mp_obj_t spotpear_set_mute_indicator(mp_obj_t self_in, mp_obj_t muted_obj) {
     mp_obj_spotpear_t *self = MP_OBJ_TO_PTR(self_in);
     int muted = mp_obj_is_true(muted_obj) ? 1 : 0;
     spotpear_board_set_mute_indicator(self->board, muted);
     return mp_const_none;
 }
-static MP_DEFINE_CONST_FUN_OBJ_2(spotpear_set_mute_indicator_obj, spotpear_set_mute_indicator);
+STATIC MP_DEFINE_CONST_FUN_OBJ_2(spotpear_set_mute_indicator_obj, spotpear_set_mute_indicator);
 
-static mp_obj_t spotpear_set_wifi_status(mp_obj_t self_in, mp_obj_t connected_obj) {
+STATIC mp_obj_t spotpear_set_wifi_status(mp_obj_t self_in, mp_obj_t connected_obj) {
     mp_obj_spotpear_t *self = MP_OBJ_TO_PTR(self_in);
     int connected = mp_obj_is_true(connected_obj) ? 1 : 0;
     spotpear_board_set_wifi_status(self->board, connected);
     return mp_const_none;
 }
-static MP_DEFINE_CONST_FUN_OBJ_2(spotpear_set_wifi_status_obj, spotpear_set_wifi_status);
+STATIC MP_DEFINE_CONST_FUN_OBJ_2(spotpear_set_wifi_status_obj, spotpear_set_wifi_status);
 
-static mp_obj_t spotpear_set_battery_level(mp_obj_t self_in, mp_obj_t level_obj) {
+STATIC mp_obj_t spotpear_set_battery_level(mp_obj_t self_in, mp_obj_t level_obj) {
     mp_obj_spotpear_t *self = MP_OBJ_TO_PTR(self_in);
     int level = mp_obj_get_int(level_obj);
     spotpear_board_set_battery_level(self->board, level);
     return mp_const_none;
 }
-static MP_DEFINE_CONST_FUN_OBJ_2(spotpear_set_battery_level_obj, spotpear_set_battery_level);
+STATIC MP_DEFINE_CONST_FUN_OBJ_2(spotpear_set_battery_level_obj, spotpear_set_battery_level);
 
 // LED functions
-static mp_obj_t spotpear_led_on(mp_obj_t self_in) {
+STATIC mp_obj_t spotpear_led_on(mp_obj_t self_in) {
     mp_obj_spotpear_t *self = MP_OBJ_TO_PTR(self_in);
     spotpear_board_led_on(self->board);
     return mp_const_none;
 }
-static MP_DEFINE_CONST_FUN_OBJ_1(spotpear_led_on_obj, spotpear_led_on);
+STATIC MP_DEFINE_CONST_FUN_OBJ_1(spotpear_led_on_obj, spotpear_led_on);
 
-static mp_obj_t spotpear_led_off(mp_obj_t self_in) {
+STATIC mp_obj_t spotpear_led_off(mp_obj_t self_in) {
     mp_obj_spotpear_t *self = MP_OBJ_TO_PTR(self_in);
     spotpear_board_led_off(self->board);
     return mp_const_none;
 }
-static MP_DEFINE_CONST_FUN_OBJ_1(spotpear_led_off_obj, spotpear_led_off);
+STATIC MP_DEFINE_CONST_FUN_OBJ_1(spotpear_led_off_obj, spotpear_led_off);
 
-static mp_obj_t spotpear_led_blink(mp_obj_t self_in, mp_obj_t count_obj) {
+STATIC mp_obj_t spotpear_led_blink(mp_obj_t self_in, mp_obj_t count_obj) {
     mp_obj_spotpear_t *self = MP_OBJ_TO_PTR(self_in);
     int count = mp_obj_get_int(count_obj);
     spotpear_board_led_blink(self->board, count);
     return mp_const_none;
 }
-static MP_DEFINE_CONST_FUN_OBJ_2(spotpear_led_blink_obj, spotpear_led_blink);
+STATIC MP_DEFINE_CONST_FUN_OBJ_2(spotpear_led_blink_obj, spotpear_led_blink);
 
 // Backlight functions
-static mp_obj_t spotpear_set_brightness(mp_obj_t self_in, mp_obj_t brightness_obj) {
+STATIC mp_obj_t spotpear_set_brightness(mp_obj_t self_in, mp_obj_t brightness_obj) {
     mp_obj_spotpear_t *self = MP_OBJ_TO_PTR(self_in);
     int brightness = mp_obj_get_int(brightness_obj);
     spotpear_board_set_brightness(self->board, brightness);
     return mp_const_none;
 }
-static MP_DEFINE_CONST_FUN_OBJ_2(spotpear_set_brightness_obj, spotpear_set_brightness);
+STATIC MP_DEFINE_CONST_FUN_OBJ_2(spotpear_set_brightness_obj, spotpear_set_brightness);
 
-static mp_obj_t spotpear_get_brightness(mp_obj_t self_in) {
+STATIC mp_obj_t spotpear_get_brightness(mp_obj_t self_in) {
     mp_obj_spotpear_t *self = MP_OBJ_TO_PTR(self_in);
     int brightness = spotpear_board_get_brightness(self->board);
     return mp_obj_new_int(brightness);
 }
-static MP_DEFINE_CONST_FUN_OBJ_1(spotpear_get_brightness_obj, spotpear_get_brightness);
+STATIC MP_DEFINE_CONST_FUN_OBJ_1(spotpear_get_brightness_obj, spotpear_get_brightness);
 
-static mp_obj_t spotpear_restore_brightness(mp_obj_t self_in) {
+STATIC mp_obj_t spotpear_restore_brightness(mp_obj_t self_in) {
     mp_obj_spotpear_t *self = MP_OBJ_TO_PTR(self_in);
     spotpear_board_restore_brightness(self->board);
     return mp_const_none;
 }
-static MP_DEFINE_CONST_FUN_OBJ_1(spotpear_restore_brightness_obj, spotpear_restore_brightness);
+STATIC MP_DEFINE_CONST_FUN_OBJ_1(spotpear_restore_brightness_obj, spotpear_restore_brightness);
 
 // Touchpad functions
-static mp_obj_t spotpear_get_touch_x(mp_obj_t self_in) {
+STATIC mp_obj_t spotpear_get_touch_x(mp_obj_t self_in) {
     mp_obj_spotpear_t *self = MP_OBJ_TO_PTR(self_in);
     int x = spotpear_board_get_touch_x(self->board);
     return mp_obj_new_int(x);
 }
-static MP_DEFINE_CONST_FUN_OBJ_1(spotpear_get_touch_x_obj, spotpear_get_touch_x);
+STATIC MP_DEFINE_CONST_FUN_OBJ_1(spotpear_get_touch_x_obj, spotpear_get_touch_x);
 
-static mp_obj_t spotpear_get_touch_y(mp_obj_t self_in) {
+STATIC mp_obj_t spotpear_get_touch_y(mp_obj_t self_in) {
     mp_obj_spotpear_t *self = MP_OBJ_TO_PTR(self_in);
     int y = spotpear_board_get_touch_y(self->board);
     return mp_obj_new_int(y);
 }
-static MP_DEFINE_CONST_FUN_OBJ_1(spotpear_get_touch_y_obj, spotpear_get_touch_y);
+STATIC MP_DEFINE_CONST_FUN_OBJ_1(spotpear_get_touch_y_obj, spotpear_get_touch_y);
 
-static mp_obj_t spotpear_is_touched(mp_obj_t self_in) {
+STATIC mp_obj_t spotpear_is_touched(mp_obj_t self_in) {
     mp_obj_spotpear_t *self = MP_OBJ_TO_PTR(self_in);
     int touched = spotpear_board_is_touched(self->board);
     return mp_obj_new_bool(touched);
 }
-static MP_DEFINE_CONST_FUN_OBJ_1(spotpear_is_touched_obj, spotpear_is_touched);
+STATIC MP_DEFINE_CONST_FUN_OBJ_1(spotpear_is_touched_obj, spotpear_is_touched);
 
 // Power management functions
-static mp_obj_t spotpear_set_power_save_mode(mp_obj_t self_in, mp_obj_t enabled_obj) {
+STATIC mp_obj_t spotpear_set_power_save_mode(mp_obj_t self_in, mp_obj_t enabled_obj) {
     mp_obj_spotpear_t *self = MP_OBJ_TO_PTR(self_in);
     int enabled = mp_obj_is_true(enabled_obj) ? 1 : 0;
     spotpear_board_set_power_save_mode(self->board, enabled);
     return mp_const_none;
 }
-static MP_DEFINE_CONST_FUN_OBJ_2(spotpear_set_power_save_mode_obj, spotpear_set_power_save_mode);
+STATIC MP_DEFINE_CONST_FUN_OBJ_2(spotpear_set_power_save_mode_obj, spotpear_set_power_save_mode);
 
-static void spotpear_deinit(mp_obj_t self_in) {
+STATIC void spotpear_deinit(mp_obj_t self_in) {
     mp_obj_spotpear_t *self = MP_OBJ_TO_PTR(self_in);
     spotpear_board_destroy(self->board);
 }
 
-static const mp_rom_map_elem_t spotpear_locals_dict_table[] = {
+STATIC const mp_rom_map_elem_t spotpear_locals_dict_table[] = {
     // Chat control
     { MP_ROM_QSTR(MP_QSTR_toggle_chat), MP_ROM_PTR(&spotpear_toggle_chat_obj) },
     
@@ -235,7 +235,7 @@ static const mp_rom_map_elem_t spotpear_locals_dict_table[] = {
     // Power management
     { MP_ROM_QSTR(MP_QSTR_set_power_save_mode), MP_ROM_PTR(&spotpear_set_power_save_mode_obj) },
 };
-static MP_DEFINE_CONST_DICT(spotpear_locals_dict, spotpear_locals_dict_table);
+STATIC MP_DEFINE_CONST_DICT(spotpear_locals_dict, spotpear_locals_dict_table);
 
 MP_DEFINE_CONST_OBJ_TYPE(
     spotpear_type,
@@ -245,10 +245,10 @@ MP_DEFINE_CONST_OBJ_TYPE(
     locals_dict, &spotpear_locals_dict
 );
 
-static const mp_rom_map_elem_t spotpear_module_globals_table[] = {
+STATIC const mp_rom_map_elem_t spotpear_module_globals_table[] = {
     { MP_ROM_QSTR(MP_QSTR_SpotpearBoard), MP_ROM_PTR(&spotpear_type) },
 };
-static MP_DEFINE_CONST_DICT(spotpear_module_globals, spotpear_module_globals_table);
+STATIC MP_DEFINE_CONST_DICT(spotpear_module_globals, spotpear_module_globals_table);
 
 const mp_obj_module_t spotpear_user_cmodule = {
     .base = { &mp_type_module },

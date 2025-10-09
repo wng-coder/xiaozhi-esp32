@@ -136,7 +136,7 @@ list(APPEND MICROPY_SOURCE_PORT
     machine_rtc.c
     machine_sdcard.c
     modespnow.c
-    # modspotpear.c  # Temporarily disabled to test base MicroPython boot
+    modspotpear.c
 )
 list(TRANSFORM MICROPY_SOURCE_PORT PREPEND ${MICROPY_PORT_DIR}/)
 list(APPEND MICROPY_SOURCE_PORT ${CMAKE_BINARY_DIR}/pins.c)
@@ -235,7 +235,7 @@ idf_component_register(
         ${MICROPY_LDFRAGMENTS}
     REQUIRES
         ${IDF_COMPONENTS}
-        # board_wrapper  # Temporarily disabled
+        board_wrapper
 )
 
 # Set the MicroPython target as the current (main) IDF component target.
