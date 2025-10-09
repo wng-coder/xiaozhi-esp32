@@ -46,6 +46,16 @@ int spotpear_board_is_touched(void* board);
 // Power management functions
 void spotpear_board_set_power_save_mode(void* board, int enabled);
 
+// Application initialization functions (from main.cc)
+// Application initialization functions from main.cc
+int spotpear_board_init_nvs(void);
+int spotpear_board_init_event_loop(void);
+int spotpear_board_start_application(void);
+int spotpear_board_get_system_info(char* buffer, int buffer_size);
+
+// Direct app_main wrapper
+void spotpear_board_app_main(void);
+
 #ifdef __cplusplus
 }
 #endif

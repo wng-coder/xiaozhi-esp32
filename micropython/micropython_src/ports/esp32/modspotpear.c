@@ -1,5 +1,6 @@
 #include "py/runtime.h"
 #include "sp_esp32_s3_1_28_box_wrapper.h"
+#include <string.h>
 
 typedef struct _mp_obj_spotpear_t {
     mp_obj_base_t base;
@@ -192,6 +193,59 @@ static mp_obj_t spotpear_set_power_save_mode(mp_obj_t self_in, mp_obj_t enabled_
 }
 static MP_DEFINE_CONST_FUN_OBJ_2(spotpear_set_power_save_mode_obj, spotpear_set_power_save_mode);
 
+// Application initialization functions (from main.cc integration)
+static mp_obj_t spotpear_init_nvs(mp_obj_t self_in) {
+    int result = spotpear_board_init_nvs();
+    return mp_obj_new_bool(result == 0);
+}
+static MP_DEFINE_CONST_FUN_OBJ_1(spotpear_init_nvs_obj, spotpear_init_nvs);
+
+static mp_obj_t spotpear_init_event_loop(mp_obj_t self_in) {
+    int result = spotpear_board_init_event_loop();
+    return mp_obj_new_bool(result == 0);
+}
+static MP_DEFINE_CONST_FUN_OBJ_1(spotpear_init_event_loop_obj, spotpear_init_event_loop);
+
+static mp_obj_t spotpear_start_application(mp_obj_t self_in) {
+    int result = spotpear_board_start_application();
+    return mp_obj_new_bool(result == 0);
+}
+static MP_DEFINE_CONST_FUN_OBJ_1(spotpear_start_application_obj, spotpear_start_application);
+
+static mp_obj_t spotpear_get_system_info(mp_obj_t self_in) {
+    char buffer[256];
+    int result = spotpear_board_get_system_info(buffer, sizeof(buffer));
+    if (result == 0) {
+        return mp_obj_new_str(buffer, strlen(buffer));
+    } else {
+        return mp_const_none;
+    }
+}
+static MP_DEFINE_CONST_FUN_OBJ_1(spotpear_get_system_info_obj, spotpear_get_system_info);
+
+// Convenience aliases for volume control
+static mp_obj_t spotpear_set_volume(mp_obj_t self_in, mp_obj_t volume_obj) {
+    mp_obj_spotpear_t *self = MP_OBJ_TO_PTR(self_in);
+    int volume = mp_obj_get_int(volume_obj);
+    spotpear_board_set_output_volume(self->board, volume);
+    return mp_const_none;
+}
+static MP_DEFINE_CONST_FUN_OBJ_2(spotpear_set_volume_obj, spotpear_set_volume);
+
+static mp_obj_t spotpear_get_volume(mp_obj_t self_in) {
+    mp_obj_spotpear_t *self = MP_OBJ_TO_PTR(self_in);
+    int volume = spotpear_board_get_output_volume(self->board);
+    return mp_obj_new_int(volume);
+}
+static MP_DEFINE_CONST_FUN_OBJ_1(spotpear_get_volume_obj, spotpear_get_volume);
+
+// Direct app_main wrapper
+static mp_obj_t spotpear_app_main(mp_obj_t self_in) {
+    spotpear_board_app_main();
+    return mp_const_none;
+}
+static MP_DEFINE_CONST_FUN_OBJ_1(spotpear_app_main_obj, spotpear_app_main);
+
 static void spotpear_deinit(mp_obj_t self_in) {
     mp_obj_spotpear_t *self = MP_OBJ_TO_PTR(self_in);
     spotpear_board_destroy(self->board);
@@ -208,6 +262,10 @@ static const mp_rom_map_elem_t spotpear_locals_dict_table[] = {
     { MP_ROM_QSTR(MP_QSTR_get_output_volume), MP_ROM_PTR(&spotpear_get_output_volume_obj) },
     { MP_ROM_QSTR(MP_QSTR_is_input_enabled), MP_ROM_PTR(&spotpear_is_input_enabled_obj) },
     { MP_ROM_QSTR(MP_QSTR_is_output_enabled), MP_ROM_PTR(&spotpear_is_output_enabled_obj) },
+    
+    // Convenience volume aliases
+    { MP_ROM_QSTR(MP_QSTR_set_volume), MP_ROM_PTR(&spotpear_set_volume_obj) },
+    { MP_ROM_QSTR(MP_QSTR_get_volume), MP_ROM_PTR(&spotpear_get_volume_obj) },
     
     // Display control
     { MP_ROM_QSTR(MP_QSTR_set_chat_message), MP_ROM_PTR(&spotpear_set_chat_message_obj) },
@@ -234,6 +292,15 @@ static const mp_rom_map_elem_t spotpear_locals_dict_table[] = {
     
     // Power management
     { MP_ROM_QSTR(MP_QSTR_set_power_save_mode), MP_ROM_PTR(&spotpear_set_power_save_mode_obj) },
+    
+    // Application initialization (from main.cc)
+    { MP_ROM_QSTR(MP_QSTR_init_nvs), MP_ROM_PTR(&spotpear_init_nvs_obj) },
+    { MP_ROM_QSTR(MP_QSTR_init_event_loop), MP_ROM_PTR(&spotpear_init_event_loop_obj) },
+    { MP_ROM_QSTR(MP_QSTR_start_application), MP_ROM_PTR(&spotpear_start_application_obj) },
+    { MP_ROM_QSTR(MP_QSTR_get_system_info), MP_ROM_PTR(&spotpear_get_system_info_obj) },
+    
+    // Direct app_main wrapper (complete main.cc functionality)
+    { MP_ROM_QSTR(MP_QSTR_app_main), MP_ROM_PTR(&spotpear_app_main_obj) },
 };
 static MP_DEFINE_CONST_DICT(spotpear_locals_dict, spotpear_locals_dict_table);
 

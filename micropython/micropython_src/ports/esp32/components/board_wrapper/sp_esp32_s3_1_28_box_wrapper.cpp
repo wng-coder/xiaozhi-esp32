@@ -1,6 +1,13 @@
 #include "sp_esp32_s3_1_28_box_wrapper.h"
 #include <esp_log.h>
 #include <driver/gpio.h>
+#include <nvs_flash.h>
+#include <esp_event.h>
+#include <esp_system.h>
+#include <esp_chip_info.h>
+#include <esp_flash.h>
+#include <freertos/FreeRTOS.h>
+#include <freertos/task.h>
 
 static const char* TAG = "board_wrapper";
 
@@ -150,6 +157,134 @@ int spotpear_board_is_touched(void* board) {
 void spotpear_board_set_power_save_mode(void* board, int enabled) {
     ESP_LOGI(TAG, "Set power save mode: %s", enabled ? "enabled" : "disabled");
     // TODO: Implement actual power management
+}
+
+// Application initialization functions (from main.cc integration)
+int spotpear_board_init_nvs(void) {
+    ESP_LOGI(TAG, "Initializing NVS flash");
+    
+    esp_err_t ret = nvs_flash_init();
+    if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
+        ESP_LOGW(TAG, "Erasing NVS flash to fix corruption");
+        ESP_ERROR_CHECK(nvs_flash_erase());
+        ret = nvs_flash_init();
+    }
+    
+    if (ret == ESP_OK) {
+        ESP_LOGI(TAG, "NVS flash initialized successfully");
+        return 0;
+    } else {
+        ESP_LOGE(TAG, "Failed to initialize NVS flash: %s", esp_err_to_name(ret));
+        return -1;
+    }
+}
+
+int spotpear_board_init_event_loop(void) {
+    ESP_LOGI(TAG, "Initializing default event loop");
+    
+    esp_err_t ret = esp_event_loop_create_default();
+    if (ret == ESP_OK || ret == ESP_ERR_INVALID_STATE) {
+        ESP_LOGI(TAG, "Event loop initialized successfully");
+        return 0;
+    } else {
+        ESP_LOGE(TAG, "Failed to initialize event loop: %s", esp_err_to_name(ret));
+        return -1;
+    }
+}
+
+int spotpear_board_start_application(void) {
+    ESP_LOGI(TAG, "Starting main application");
+    // Note: We can't directly start the C++ Application class from here
+    // This would be used to trigger application-specific initialization
+    ESP_LOGI(TAG, "Application initialization placeholder - integrate with main Application class");
+    return 0;
+}
+
+int spotpear_board_get_system_info(char* buffer, int buffer_size) {
+    ESP_LOGI(TAG, "Getting system information");
+    
+    if (!buffer || buffer_size < 100) {
+        return -1;
+    }
+    
+    esp_chip_info_t chip_info;
+    esp_chip_info(&chip_info);
+    
+    uint32_t flash_size;
+    esp_flash_get_size(NULL, &flash_size);
+    
+    snprintf(buffer, buffer_size,
+        "ESP32-S3 Rev %d, %d CPU cores, WiFi%s%s, %dMB %s flash",
+        chip_info.revision,
+        chip_info.cores,
+        (chip_info.features & CHIP_FEATURE_BT) ? "/BT" : "",
+        (chip_info.features & CHIP_FEATURE_BLE) ? "/BLE" : "",
+        (int)(flash_size / (1024 * 1024)),
+        (chip_info.features & CHIP_FEATURE_EMB_FLASH) ? "embedded" : "external"
+    );
+    
+    return 0;
+}
+
+// Bridge function to launch xiaozhi application in separate task
+static void xiaozhi_app_task(void* arg) {
+    ESP_LOGI(TAG, "Starting xiaozhi application task");
+    
+    // Here we could potentially spawn the actual xiaozhi application
+    // For now, this serves as a placeholder that demonstrates the concept
+    // In a real implementation, you'd either:
+    // 1. Create a separate xiaozhi executable and exec() it
+    // 2. Refactor xiaozhi to be a library that can be called from here
+    // 3. Use IPC mechanisms to communicate with a separate xiaozhi process
+    
+    ESP_LOGI(TAG, "Xiaozhi application placeholder running...");
+    
+    // Keep the task running
+    while (1) {
+        vTaskDelay(pdMS_TO_TICKS(5000));
+        ESP_LOGI(TAG, "Xiaozhi app heartbeat");
+    }
+}
+
+// Direct wrapper for the complete app_main function
+void spotpear_board_app_main(void) {
+    ESP_LOGI(TAG, "Starting ESP32 system initialization");
+    
+    // 1. Initialize default event loop
+    esp_err_t ret = esp_event_loop_create_default();
+    if (ret != ESP_OK && ret != ESP_ERR_INVALID_STATE) {
+        ESP_LOGE(TAG, "Failed to create event loop: %s", esp_err_to_name(ret));
+        return;
+    }
+    
+    // 2. Initialize NVS flash
+    ret = nvs_flash_init();
+    if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
+        ESP_LOGW(TAG, "Erasing NVS flash to fix corruption");
+        nvs_flash_erase();
+        ret = nvs_flash_init();
+    }
+    if (ret != ESP_OK) {
+        ESP_LOGE(TAG, "Failed to initialize NVS: %s", esp_err_to_name(ret));
+        return;
+    }
+    
+    // 3. Launch xiaozhi application as separate task
+    TaskHandle_t xiaozhi_task_handle;
+    BaseType_t task_result = xTaskCreate(
+        xiaozhi_app_task,
+        "xiaozhi_app",
+        8192,  // Stack size
+        NULL,  // Parameters
+        5,     // Priority
+        &xiaozhi_task_handle
+    );
+    
+    if (task_result == pdPASS) {
+        ESP_LOGI(TAG, "Xiaozhi application task created successfully");
+    } else {
+        ESP_LOGE(TAG, "Failed to create xiaozhi application task");
+    }
 }
 
 }
