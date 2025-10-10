@@ -2,9 +2,7 @@
 #include <esp_log.h>
 #include <cstring>
 
-#define TAG "LvglGif"
-
-LvglGif::LvglGif(const lv_img_dsc_t* img_dsc)
+LvglGif::LvglGif(const lv_image_dsc_t* img_dsc)
     : gif_(nullptr), timer_(nullptr), last_call_(0), playing_(false), loaded_(false) {
     if (!img_dsc || !img_dsc->data) {
         ESP_LOGE(TAG, "Invalid image descriptor");
@@ -43,7 +41,7 @@ LvglGif::~LvglGif() {
 }
 
 // LvglImage interface implementation
-const lv_img_dsc_t* LvglGif::image_dsc() const {
+const lv_image_dsc_t* LvglGif::image_dsc() const {
     if (!loaded_) {
         return nullptr;
     }

@@ -5,7 +5,7 @@
 #include <string>
 #include <functional>
 
-#include <cJSON.h>
+#include "assets/cJSON.h"
 #include <esp_partition.h>
 #include <model_path.h>
 

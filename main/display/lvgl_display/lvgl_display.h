@@ -4,7 +4,9 @@
 #include "display.h"
 #include "lvgl_image.h"
 
-#include <lvgl.h>
+#include "lvgl.h"
+#include "display/lv_display.h"
+#include "core/lv_obj.h"
 #include <esp_timer.h>
 #include <esp_log.h>
 #include <esp_pm.h>

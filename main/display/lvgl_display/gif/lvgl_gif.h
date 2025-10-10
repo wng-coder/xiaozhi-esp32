@@ -12,11 +12,11 @@
  */
 class LvglGif {
 public:
-    explicit LvglGif(const lv_img_dsc_t* img_dsc);
+    explicit LvglGif(const lv_image_dsc_t* img_dsc);
     virtual ~LvglGif();
 
     // LvglImage interface implementation
-    virtual const lv_img_dsc_t* image_dsc() const;
+    virtual const lv_image_dsc_t* image_dsc() const;
 
     /**
      * Start/restart GIF animation
@@ -72,10 +72,10 @@ public:
 private:
     // GIF decoder instance
     gd_GIF* gif_;
-    
+
     // LVGL image descriptor
-    lv_img_dsc_t img_dsc_;
-    
+    lv_image_dsc_t img_dsc_;
+
     // Animation timer
     lv_timer_t* timer_;
     

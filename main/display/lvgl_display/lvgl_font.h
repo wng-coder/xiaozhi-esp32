@@ -1,6 +1,7 @@
-#pragma once
 
-#include <lvgl.h>
+#pragma once
+#include "lvgl.h"
+#include "font/lv_font.h"
 
 
 class LvglFont {

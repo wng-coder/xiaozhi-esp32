@@ -3,10 +3,10 @@
 
 #include <http.h>
 #include <web_socket.h>
-#include <mqtt.h>
-#include <udp.h>
+#include "../../../lib/lwip/src/include/lwip/apps/mqtt.h"
+#include "../../../lib/lwip/src/include/lwip/udp.h"
 #include <string>
-#include <network_interface.h>
+#include "network_interface.h"
 
 #include "led/led.h"
 #include "backlight.h"

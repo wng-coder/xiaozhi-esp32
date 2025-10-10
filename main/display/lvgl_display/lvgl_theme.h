@@ -5,7 +5,8 @@
 #include "lvgl_font.h"
 #include "emoji_collection.h"
 
-#include <lvgl.h>
+#include "lvgl.h"
+#include "misc/lv_color.h"
 #include <memory>
 #include <map>
 #include <string>
