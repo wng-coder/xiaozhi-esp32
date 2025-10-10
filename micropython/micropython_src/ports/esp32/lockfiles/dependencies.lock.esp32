@@ -1,4 +1,20 @@
 dependencies:
+  78/esp-opus:
+    dependencies: []
+    source:
+      path: /workspaces/xiaozhi-esp32/managed_components/78__esp-opus
+      type: local
+    version: 1.0.5
+  espressif/cmake_utilities:
+    component_hash: 05165f30922b422b4b90c08845e6d449329b97370fbd06309803d8cb539d79e3
+    dependencies:
+    - name: idf
+      require: private
+      version: '>=4.1'
+    source:
+      registry_url: https://components.espressif.com/
+      type: service
+    version: 1.1.1
   espressif/lan867x:
     component_hash: 0ff9dae3affeff53811e7c8283e67c6d36dc0c03e3bc5102c0fba629e08bf6c4
     dependencies:
@@ -26,10 +42,19 @@ dependencies:
     source:
       type: idf
     version: 5.5.0
+  lvgl/lvgl:
+    dependencies: []
+    source:
+      path: /workspaces/xiaozhi-esp32/managed_components/lvgl__lvgl
+      type: local
+    version: 9.3.0
 direct_dependencies:
+- 78/esp-opus
+- espressif/cmake_utilities
 - espressif/lan867x
 - espressif/mdns
 - idf
-manifest_hash: 3b18b5bbac91c9fe5098d3759a37c84ed0828546d8cbc92e26e4c1698e689c8a
+- lvgl/lvgl
+manifest_hash: 03a11bdb5809453c9410d3b11cf5f15f816f49de325332addc0097caf50824d3
 target: esp32
 version: 2.0.0

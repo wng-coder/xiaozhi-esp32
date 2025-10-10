@@ -41,6 +41,16 @@ else()
     include(${MICROPY_BOARD_DIR}/mpconfigvariant_${MICROPY_BOARD_VARIANT}.cmake)
 endif()
 
+# Also include a project-level sdkconfig (if present) as an additional defaults file.
+# This allows out-of-tree projects to inject/override ESP-IDF Kconfig settings
+# without modifying MicroPython board files. Later entries override earlier ones.
+get_filename_component(_REPO_ROOT "${CMAKE_CURRENT_LIST_DIR}/../../../.." ABSOLUTE)
+set(_ROOT_SDKCONFIG "${_REPO_ROOT}/sdkconfig")
+if(EXISTS ${_ROOT_SDKCONFIG})
+    list(APPEND SDKCONFIG_DEFAULTS ${_ROOT_SDKCONFIG})
+    message(STATUS "Including project sdkconfig: ${_ROOT_SDKCONFIG}")
+endif()
+
 # Set the frozen manifest file. Note if MICROPY_FROZEN_MANIFEST is set from the cmake
 # command line, then it will override the default and any manifest set by the board.
 if (MICROPY_USER_FROZEN_MANIFEST)
@@ -57,6 +67,31 @@ foreach(SDKCONFIG_DEFAULT ${SDKCONFIG_DEFAULTS})
 endforeach()
 configure_file(${CMAKE_BINARY_DIR}/sdkconfig.combined.in ${CMAKE_BINARY_DIR}/sdkconfig.combined COPYONLY)
 set(SDKCONFIG_DEFAULTS ${CMAKE_BINARY_DIR}/sdkconfig.combined)
+
+# Make IDF aware of project's managed_components alongside this port's own managed components
+get_filename_component(_REPO_ROOT "${CMAKE_CURRENT_LIST_DIR}/../../../.." ABSOLUTE)
+set(_PROJECT_MANAGED "${_REPO_ROOT}/managed_components")
+if(EXISTS ${_PROJECT_MANAGED})
+    # Only add whitelisted project components to avoid bringing in incompatible drivers for this target
+    set(_WHITELIST
+        espressif__esp_lvgl_port
+        lvgl__lvgl
+        78__xiaozhi-fonts
+        78__esp-ml307
+        78__esp-opus
+        78__esp-opus-encoder
+        78__esp-wifi-connect
+        espressif__adc_battery_estimation
+        espressif__button
+        espressif__esp_codec_dev
+    )
+    foreach(_comp ${_WHITELIST})
+        if(EXISTS "${_PROJECT_MANAGED}/${_comp}")
+            list(APPEND EXTRA_COMPONENT_DIRS "${_PROJECT_MANAGED}/${_comp}")
+            message(STATUS "Adding managed component: ${_comp}")
+        endif()
+    endforeach()
+endif()
 
 # Include main IDF cmake file.
 include($ENV{IDF_PATH}/tools/cmake/project.cmake)

@@ -1,5 +1,7 @@
 #include "py/runtime.h"
-#include "components/board_wrapper/board_wrapper.h"
+#include "py/mphal.h"
+#include "py/obj.h"
+#include "simple_board_wrapper.h"
 
 // MicroPython wrapper for Board class
 
