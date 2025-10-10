@@ -2,28 +2,20 @@
 #include <esp_random.h>
 #include <esp_log.h>
 #include <string>
+#include <esp_chip_info.h>
+#include <esp_ota_ops.h>
 
 static const char *TAG = "board_wrapper";
 
-// Forward declarations for stub classes
-class Led;
-class AudioCodec;
-class Display;
-class Camera;
-class NetworkInterface;
-class Backlight;
-
-// Minimal Board implementation as a standalone class for MicroPython wrapper
+// Simple Board class for MicroPython integration - gets functionality from the real Board when needed
 class MinimalBoard {
 private:
     std::string uuid_;
     
     std::string GenerateUuid() {
-        // Simple UUID v4 generation
         uint8_t uuid[16];
         esp_fill_random(uuid, sizeof(uuid));
         
-        // Set version (4) and variant bits
         uuid[6] = (uuid[6] & 0x0f) | 0x40;  // Version 4
         uuid[8] = (uuid[8] & 0x3f) | 0x80;  // Variant 10
         
@@ -41,85 +33,51 @@ private:
 public:
     MinimalBoard() {
         uuid_ = GenerateUuid();
-        ESP_LOGI(TAG, "MinimalBoard UUID=%s", uuid_.c_str());
+        ESP_LOGI(TAG, "MinimalBoard created with UUID=%s", uuid_.c_str());
     }
-    
-    ~MinimalBoard() = default;
     
     std::string GetBoardType() {
         return "SPOTPEAR_S3_128_BOX";
     }
     
-    Backlight* GetBacklight() {
-        return nullptr; // Stub implementation  
-    }
-    
-    Led* GetLed() {
-        return nullptr; // Stub implementation
-    }
-    
-    AudioCodec* GetAudioCodec() {
-        return nullptr; // Stub implementation
-    }
-    
-    bool GetTemperature(float& esp32temp) {
-        esp32temp = 25.0f; // Stub temperature
-        return false; // Stub implementation
-    }
-    
-    Display* GetDisplay() {
-        return nullptr; // Stub implementation
-    }
-    
-    Camera* GetCamera() {
-        return nullptr; // Stub implementation
-    }
-    
-    NetworkInterface* GetNetwork() {
-        return nullptr; // Stub implementation
-    }
-    
-    void StartNetwork() {
-        // Stub implementation
-    }
-    
-    const char* GetNetworkStateIcon() {
-        return ""; // Stub implementation
-    }
-    
-    bool GetBatteryLevel(int &level, bool& charging, bool& discharging) {
-        level = 50; // Stub battery level
-        charging = false;
-        discharging = false;
-        return false; // Stub implementation
+    std::string GetUuid() {
+        return uuid_;
     }
     
     std::string GetSystemInfoJson() {
-        return "{}"; // Stub implementation
+        // Minimal system info
+        std::string json = "{";
+        json += "\"board_type\":\"SPOTPEAR_S3_128_BOX\",";
+        json += "\"uuid\":\"" + uuid_ + "\",";
+        
+        esp_chip_info_t chip_info;
+        esp_chip_info(&chip_info);
+        json += "\"chip_model\":" + std::to_string(chip_info.model) + ",";
+        json += "\"chip_cores\":" + std::to_string(chip_info.cores) + ",";
+        json += "\"chip_revision\":" + std::to_string(chip_info.revision);
+        json += "}";
+        return json;
     }
     
-    void SetPowerSaveMode(bool enabled) {
-        // Stub implementation
+    bool GetBatteryLevel(int &level, bool& charging, bool& discharging) {
+        level = 75;  // Mock battery level
+        charging = false;
+        discharging = true;
+        return true;
     }
     
-    std::string GetBoardJson() {
-        return "{}"; // Stub implementation
-    }
-    
-    std::string GetDeviceStatusJson() {
-        return "{}"; // Stub implementation
-    }
-    
-    std::string GetUuid() {
-        return uuid_;
+    bool GetTemperature(float& esp32temp) {
+        esp32temp = 35.5f;  // Mock temperature
+        return true;
     }
 };
 
 extern "C" {
-// Create and destroy
+// Create and destroy MinimalBoard
 void* board_wrapper_create() {
     return static_cast<void*>(new MinimalBoard());
 }
+
 void board_wrapper_destroy(void* board) {
     MinimalBoard* b = static_cast<MinimalBoard*>(board);
     delete b;
@@ -132,11 +90,29 @@ const char* board_wrapper_get_type(void* board) {
     return type.c_str();
 }
 
-// Get UUID
+// Get UUID  
 const char* board_wrapper_get_uuid(void* board) {
     MinimalBoard* b = static_cast<MinimalBoard*>(board);
     static std::string uuid = b->GetUuid();
     return uuid.c_str();
 }
-// Add more wrappers as needed (LED, Backlight, etc.)
+
+// Get system info JSON
+const char* board_wrapper_get_system_info(void* board) {
+    MinimalBoard* b = static_cast<MinimalBoard*>(board);
+    static std::string info = b->GetSystemInfoJson();
+    return info.c_str();
+}
+
+// Get battery level
+bool board_wrapper_get_battery_level(void* board, int* level, bool* charging, bool* discharging) {
+    MinimalBoard* b = static_cast<MinimalBoard*>(board);
+    return b->GetBatteryLevel(*level, *charging, *discharging);
+}
+
+// Get temperature
+bool board_wrapper_get_temperature(void* board, float* temperature) {
+    MinimalBoard* b = static_cast<MinimalBoard*>(board);
+    return b->GetTemperature(*temperature);
+}
 }

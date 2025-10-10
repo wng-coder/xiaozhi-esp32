@@ -29,12 +29,48 @@ static mp_obj_t board_get_uuid(mp_obj_t self_in) {
 }
 static MP_DEFINE_CONST_FUN_OBJ_1(board_get_uuid_obj, board_get_uuid);
 
-// Add more wrappers for LED, Backlight, AudioCodec, Network, etc. as needed
+static mp_obj_t board_get_system_info(mp_obj_t self_in) {
+    mp_obj_board_t *self = MP_OBJ_TO_PTR(self_in);
+    const char* info = board_wrapper_get_system_info(self->board);
+    return mp_obj_new_str(info, strlen(info));
+}
+static MP_DEFINE_CONST_FUN_OBJ_1(board_get_system_info_obj, board_get_system_info);
+
+static mp_obj_t board_get_battery_level(mp_obj_t self_in) {
+    mp_obj_board_t *self = MP_OBJ_TO_PTR(self_in);
+    int level;
+    bool charging, discharging;
+    bool success = board_wrapper_get_battery_level(self->board, &level, &charging, &discharging);
+    
+    mp_obj_t tuple[4];
+    tuple[0] = mp_obj_new_bool(success);
+    tuple[1] = mp_obj_new_int(level);
+    tuple[2] = mp_obj_new_bool(charging);
+    tuple[3] = mp_obj_new_bool(discharging);
+    
+    return mp_obj_new_tuple(4, tuple);
+}
+static MP_DEFINE_CONST_FUN_OBJ_1(board_get_battery_level_obj, board_get_battery_level);
+
+static mp_obj_t board_get_temperature(mp_obj_t self_in) {
+    mp_obj_board_t *self = MP_OBJ_TO_PTR(self_in);
+    float temperature;
+    bool success = board_wrapper_get_temperature(self->board, &temperature);
+    
+    mp_obj_t tuple[2];
+    tuple[0] = mp_obj_new_bool(success);
+    tuple[1] = mp_obj_new_float(temperature);
+    
+    return mp_obj_new_tuple(2, tuple);
+}
+static MP_DEFINE_CONST_FUN_OBJ_1(board_get_temperature_obj, board_get_temperature);
 
 static const mp_rom_map_elem_t board_locals_dict_table[] = {
     { MP_ROM_QSTR(MP_QSTR_get_type), MP_ROM_PTR(&board_get_type_obj) },
     { MP_ROM_QSTR(MP_QSTR_get_uuid), MP_ROM_PTR(&board_get_uuid_obj) },
-    // Add more methods here
+    { MP_ROM_QSTR(MP_QSTR_get_system_info), MP_ROM_PTR(&board_get_system_info_obj) },
+    { MP_ROM_QSTR(MP_QSTR_get_battery_level), MP_ROM_PTR(&board_get_battery_level_obj) },
+    { MP_ROM_QSTR(MP_QSTR_get_temperature), MP_ROM_PTR(&board_get_temperature_obj) },
 };
 static MP_DEFINE_CONST_DICT(board_locals_dict, board_locals_dict_table);
 
