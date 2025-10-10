@@ -8,6 +8,7 @@
 
 // Disable native USB as we're using external USB-UART
 #define MICROPY_HW_ENABLE_USBDEV            (0)
+#define MICROPY_HW_USB_CDC                  (0)
 
 // Disable I2C to avoid driver conflicts with our board wrapper
 // The board wrapper manages I2C directly

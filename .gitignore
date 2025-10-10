@@ -19,3 +19,4 @@ mmap_generate_*.h
 
 # micropython_src/  # Should not be ignored - contains MicroPython integration
 build_native/
+build_spotpear/

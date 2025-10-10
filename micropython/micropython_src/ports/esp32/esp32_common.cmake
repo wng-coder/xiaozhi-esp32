@@ -136,7 +136,8 @@ list(APPEND MICROPY_SOURCE_PORT
     machine_rtc.c
     machine_sdcard.c
     modespnow.c
-    modspotpear.c
+    # modspotpear.c
+    modboard.c
 )
 list(TRANSFORM MICROPY_SOURCE_PORT PREPEND ${MICROPY_PORT_DIR}/)
 list(APPEND MICROPY_SOURCE_PORT ${CMAKE_BINARY_DIR}/pins.c)
@@ -272,6 +273,8 @@ target_compile_options(${MICROPY_TARGET} PUBLIC
 # Additional include directories needed for private NimBLE headers.
 target_include_directories(${MICROPY_TARGET} PUBLIC
     ${IDF_PATH}/components/bt/host/nimble/nimble
+    /workspaces/xiaozhi-esp32/main
+    /workspaces/xiaozhi-esp32/managed_components/78__esp-ml307/include
 )
 
 # Add additional extmod and usermod components.
