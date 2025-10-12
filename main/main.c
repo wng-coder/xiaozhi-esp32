@@ -7,12 +7,12 @@
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
 
-#include "application.h"
-#include "system_info.h"
+#include "application_c.h"
+#include "system_info_c.h"
 
 #define TAG "main"
 
-extern "C" void app_main(void)
+void app_main(void)
 {
     // Initialize the default event loop
     ESP_ERROR_CHECK(esp_event_loop_create_default());
@@ -26,7 +26,15 @@ extern "C" void app_main(void)
     }
     ESP_ERROR_CHECK(ret);
 
-    // Launch the application
-    auto& app = Application::GetInstance();
-    app.Start();
+    // Launch the application using C interface
+    struct Application* app = Application_GetInstance();
+    Application_Start(app);
+
+    // Example usage of system info C interface
+    size_t flash_size = SystemInfo_GetFlashSize();
+    size_t min_heap = SystemInfo_GetMinimumFreeHeapSize();
+    size_t free_heap = SystemInfo_GetFreeHeapSize();
+    ESP_LOGI(TAG, "Flash size: %zu, Min heap: %zu, Free heap: %zu", flash_size, min_heap, free_heap);
+    SystemInfo_PrintTaskList();
+    SystemInfo_PrintHeapStats();
 }

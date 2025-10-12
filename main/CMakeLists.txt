@@ -35,7 +35,9 @@ set(SOURCES "audio/audio_codec.cc"
             "settings.cc"
             "device_state_event.cc"
             "assets.cc"
-            "main.cc"
+            "main.c"
+            "main_c_wrapper.c"
+            "system_info_c.cpp"
             )
 
 set(INCLUDE_DIRS "." "display" "display/lvgl_display" "display/lvgl_display/jpg" "audio" "protocols")
@@ -81,7 +83,6 @@ elseif(CONFIG_BOARD_TYPE_BREAD_COMPACT_ESP32_LCD)
 elseif(CONFIG_BOARD_TYPE_DF_K10)
     set(BOARD_TYPE "df-k10")
     set(BUILTIN_TEXT_FONT font_puhui_basic_20_4)
-    set(BUILTIN_ICON_FONT font_awesome_20_4)
     set(DEFAULT_EMOJI_COLLECTION twemoji_64)
 elseif(CONFIG_BOARD_TYPE_DF_S3_AI_CAM)
     set(BOARD_TYPE "df-s3-ai-cam")
@@ -592,11 +593,15 @@ if(CONFIG_IDF_TARGET_ESP32)
                              )
 endif()
 
-idf_component_register(SRCS ${SOURCES}
-                    EMBED_FILES ${LANG_SOUNDS} ${COMMON_SOUNDS}
-                    INCLUDE_DIRS ${INCLUDE_DIRS}
-                    WHOLE_ARCHIVE
-                    )
+idf_component_register(
+    SRCS
+        ${SOURCES}
+        "main.c"
+        "main_c_wrapper.c"
+    EMBED_FILES ${LANG_SOUNDS} ${COMMON_SOUNDS}
+    INCLUDE_DIRS ${INCLUDE_DIRS}
+    WHOLE_ARCHIVE
+)
 
 # Use target_compile_definitions to define BOARD_TYPE, BOARD_NAME
 # If BOARD_NAME is empty, use BOARD_TYPE

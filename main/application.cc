@@ -1,3 +1,4 @@
+#include "application_c.h"
 #include "application.h"
 #include "board.h"
 #include "display.h"
@@ -19,6 +20,16 @@
 
 #define TAG "Application"
 
+extern "C" {
+    struct Application* Application_GetInstance(void) {
+        return &Application::GetInstance();
+    }
+    void Application_Start(struct Application* app) {
+        if (app) {
+            app->Start();
+        }
+    }
+}
 
 static const char* const STATE_STRINGS[] = {
     "unknown",
