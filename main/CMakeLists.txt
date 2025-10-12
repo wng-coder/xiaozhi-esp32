@@ -804,4 +804,4 @@ else()
     message(STATUS "Assets partition not found, using v1 partition table")
 endif()
 
-set(EXTRA_COMPONENT_DIRS ../components/lua)
+set(EXTRA_COMPONENT_DIRS ../components/lua $ENV{IDF_PATH}/components/tinyusb)
