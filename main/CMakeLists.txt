@@ -37,6 +37,7 @@ set(SOURCES "audio/audio_codec.cc"
             "assets.cc"
             "main.c"
             "main_c_wrapper.c"
+            "modmain.c"
             "system_info_c.cpp"
             )
 
@@ -598,6 +599,7 @@ idf_component_register(
         ${SOURCES}
         "main.c"
         "main_c_wrapper.c"
+        "modmain.c"
     EMBED_FILES ${LANG_SOUNDS} ${COMMON_SOUNDS}
     INCLUDE_DIRS ${INCLUDE_DIRS}
     WHOLE_ARCHIVE
