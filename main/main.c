@@ -18,96 +18,68 @@
 #define BUF_SIZE 4096
 
 
-// TinyUSB CDC ACM includes
-#include "tinyusb.h"
-#include "tusb_cdc_acm.h"
-#include "tusb_console.h"
 
-void lua_repl(void)
+
+
+static int lua_repl_cmd(int argc, char **argv)
 {
     lua_State *L = luaL_newstate();
     luaL_openlibs(L);
-    printf("Lua REPL started. Type Lua commands.\n");
+    printf("Lua REPL started. Type Lua code. End with a single dot '.' on a line.\n");
+    char data[BUF_SIZE];
+    int total_len = 0;
     while (1) {
-        printf("Enter Lua code (end with a single dot '.' on a line):\n");
+        printf(">> ");
         fflush(stdout);
-        char data[BUF_SIZE];
-        int total_len = 0;
-        while (1) {
-            printf(">> ");
-            fflush(stdout);
-            if (fgets(data + total_len, BUF_SIZE - total_len, stdin) == NULL) {
-                printf("Input error or EOF!\n");
-                break;
-            }
-            size_t line_len = strlen(data + total_len);
-            // Remove trailing newline
-            if (line_len > 0 && data[total_len + line_len - 1] == '\n') {
-                data[total_len + line_len - 1] = '\0';
-                line_len--;
-            }
-            if (line_len == 1 && data[total_len] == '.') {
-                break;
-            }
-            total_len += line_len;
-            // Add newline after each line except the last
-            if (total_len + 1 < BUF_SIZE) {
-                data[total_len] = '\n';
-                total_len++;
-            } else {
-                printf("Input too long!\n");
-                break;
-            }
+        if (fgets(data + total_len, BUF_SIZE - total_len, stdin) == NULL) {
+            printf("Input error or EOF!\n");
+            break;
         }
-        data[total_len] = '\0';
-        if (total_len > 0) {
-            if (luaL_dostring(L, data) != LUA_OK) {
-                printf("Lua error: %s\n", lua_tostring(L, -1));
-                lua_pop(L, 1);
-            }
+        size_t line_len = strlen(data + total_len);
+        if (line_len > 0 && data[total_len + line_len - 1] == '\n') {
+            data[total_len + line_len - 1] = '\0';
+            line_len--;
         }
-        vTaskDelay(1);
+        if (line_len == 1 && data[total_len] == '.') {
+            break;
+        }
+        total_len += line_len;
+        if (total_len + 1 < BUF_SIZE) {
+            data[total_len] = '\n';
+            total_len++;
+        } else {
+            printf("Input too long!\n");
+            break;
+        }
+    }
+    data[total_len] = '\0';
+    if (total_len > 0) {
+        if (luaL_dostring(L, data) != LUA_OK) {
+            printf("Lua error: %s\n", lua_tostring(L, -1));
+            lua_pop(L, 1);
+        }
     }
     lua_close(L);
+    return 0;
 }
 
 void app_main(void)
 {
-    // TinyUSB CDC ACM initialization (based on tusb_console_main.c)
-    ESP_LOGI(TAG, "USB initialization");
-    const tinyusb_config_t tusb_cfg = {
-        .device_descriptor = NULL,
-        .string_descriptor = NULL,
-        .external_phy = false,
-#if (TUD_OPT_HIGH_SPEED)
-        .fs_configuration_descriptor = NULL,
-        .hs_configuration_descriptor = NULL,
-        .qualifier_descriptor = NULL,
-#else
-        .configuration_descriptor = NULL,
-#endif
-    };
-    ESP_ERROR_CHECK(tinyusb_driver_install(&tusb_cfg));
-
-    tinyusb_config_cdcacm_t acm_cfg = { 0 };
-    ESP_ERROR_CHECK(tusb_cdc_acm_init(&acm_cfg));
-
-    ESP_LOGI(TAG, "USB initialization DONE");
-    esp_tusb_init_console(TINYUSB_CDC_ACM_0);
-    ESP_LOGI(TAG, "console routed to USB");
-
     // Diagnostics: print heap and stack info
     printf("Free heap: %lu\n", (unsigned long)esp_get_free_heap_size());
 
-    // Minimal echo test for serial input
-    char buf[128];
-    while (1) {
-        printf("Type something: ");
-        fflush(stdout);
-        if (fgets(buf, sizeof(buf), stdin)) {
-            printf("You typed: %s\n", buf);
-        } else {
-            printf("Input error or EOF!\n");
-        }
-    }
+    esp_console_repl_t *repl = NULL;
+    esp_console_repl_config_t repl_config = ESP_CONSOLE_REPL_CONFIG_DEFAULT();
+    repl_config.prompt = "repl >";
+    const esp_console_cmd_t lua_cmd = {
+        .command = "lua",
+        .help = "Start Lua REPL (end input with '.')",
+        .func = &lua_repl_cmd,
+    };
+    esp_console_dev_usb_cdc_config_t usb_cdc_config = {};
+    linenoiseSetDumbMode(1);
+
+    ESP_ERROR_CHECK(esp_console_new_repl_usb_cdc(&usb_cdc_config, &repl_config, &repl));
+    ESP_ERROR_CHECK(esp_console_cmd_register(&lua_cmd));
+    ESP_ERROR_CHECK(esp_console_start_repl(repl));
 }
