@@ -48,28 +48,27 @@ static int lua_repl_cmd(int argc, char **argv)
     char data[BUF_SIZE];
     int total_len = 0;
     while (1) {
-        printf(">> ");
-        fflush(stdout);
-        if (fgets(data + total_len, BUF_SIZE - total_len, stdin) == NULL) {
+        char *line = linenoise(">> ");
+        if (!line) {
             printf("Input error or EOF!\n");
             break;
         }
-        size_t line_len = strlen(data + total_len);
-        if (line_len > 0 && data[total_len + line_len - 1] == '\n') {
-            data[total_len + line_len - 1] = '\0';
-            line_len--;
-        }
-        if (line_len == 1 && data[total_len] == '.') {
+        size_t line_len = strlen(line);
+        if (line_len == 1 && line[0] == '.') {
+            linenoiseFree(line);
             break;
         }
-        total_len += line_len;
-        if (total_len + 1 < BUF_SIZE) {
+        if (total_len + line_len + 1 < BUF_SIZE) {
+            memcpy(data + total_len, line, line_len);
+            total_len += line_len;
             data[total_len] = '\n';
             total_len++;
         } else {
             printf("Input too long!\n");
+            linenoiseFree(line);
             break;
         }
+        linenoiseFree(line);
     }
     data[total_len] = '\0';
     if (total_len > 0) {
